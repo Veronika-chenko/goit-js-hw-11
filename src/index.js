@@ -1,47 +1,27 @@
-const refs = {
+import { Notify } from "notiflix";
+import NewsApiService from './news-service';
+import renderImageCard from './render-interface';
+
+export const refs = {
     form: document.querySelector('#search-form'),
+    galleryContainer: document.querySelector('.gallery'),
+    loadMoreBtn: document.querySelector('button.load-more'),
 }
 
-refs.form.addEventListener('submit', fnA);
+const newsApiService = new NewsApiService;
 
-function fnA(evt) {
+refs.form.addEventListener('submit', onSearch);
+refs.loadMoreBtn.addEventListener('click', onLoadMore)
+
+function onSearch(evt) {
     evt.preventDefault();
-    const searchQuery = evt.currentTarget.elements.searchQuery.value;
-    console.log(searchQuery);
     
-    const BASE_URL = 'https://pixabay.com/api/';
-    const QUERY_PARAMS = `&q=${searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&`;
-    const key = '?key=29745254-668a4ef84f81b3be2971a230f';
-
-    fetch(BASE_URL + key + QUERY_PARAMS).then(r => r.json()).then(console.log());
+    newsApiService.query = evt.currentTarget.elements.searchQuery.value;
+    newsApiService.resetPage();
+    newsApiService.fetchImages().then(hits => {
+        renderImageCard(hits);
+    })
 }
-
-function getInputData() {
-    console.log(evt.target.value);
+function onLoadMore(searchQuery) {
+    newsApiService.fetchImages(searchQuery).then(hits => renderImageCard(hits));
 }
-
-// function createImageCard(obj) {
-//     const markup = `
-//         <div class="photo-card">
-//         <img src="" alt="${obj.tags}" loading="lazy" />
-//         <div class="info">
-//             <p class="info-item">
-//                 <b>Likes</b>${obj.likes}
-//             </p>
-
-//             <p class="info-item">
-//                 <b>Views</b>${obj.views}
-//             </p>
-
-//             <p class="info-item">
-//                 <b>Comments</b>${obj.comments}
-//             </p>
-
-//             <p class="info-item">
-//                 <b>Downloads</b>${obj.downloads}
-//             </p>
-//         </div>
-//         </div>`
-// }
-
-
