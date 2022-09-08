@@ -1,3 +1,5 @@
+import { Notify } from "notiflix";
+import { refs } from "./index";
 const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '?key=29745254-668a4ef84f81b3be2971a230f';
 
@@ -7,15 +9,16 @@ export default class NewsApiServise {
         this.page = 1;
     }
     
-    async fetchImages() {
+    fetchImages() {
         const QUERY_PARAMS = `&q=${this.searchQuery}&
-        image_type=photo&orientation=horizontal&safesearch=true&page=${this.page}&per_page=40`;
+        image_type=photo&orientation=horizontal&safesearch=true&page=${this.page}&per_page=50`;
         const resourceUrl = BASE_URL + API_KEY + QUERY_PARAMS;
     
-        const responce = await fetch(resourceUrl);
-        const {hits} = await responce.json();
-        this.incrementPage();
-        return hits;
+        return fetch(resourceUrl).then(responce => responce.json())
+            .then(data => {
+            this.incrementPage();
+            return data.hits;
+        })
     }
 
     incrementPage() {
@@ -34,3 +37,5 @@ export default class NewsApiServise {
         this.searchQuery = newQuery;
     }
 }
+
+// if (data.hits.length === data.totalHits) //?
