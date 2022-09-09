@@ -8,6 +8,7 @@ export const refs = {
     loadMoreBtn: document.querySelector('button.load-more'),
 }
 
+refs.loadMoreBtn.classList.add('is-hidden');
 const newsApiService = new NewsApiService;
 
 refs.form.addEventListener('submit', onSearch);
@@ -18,10 +19,31 @@ function onSearch(evt) {
     
     newsApiService.query = evt.currentTarget.elements.searchQuery.value;
     newsApiService.resetPage();
-    newsApiService.fetchImages().then(hits => {
-        renderImageCard(hits);
-    })
+    newsApiService.fetchImages()
+        .then(data => {
+        if (data.hits.length === 0) {
+            Notify.info("Sorry, there are no images matching your search query. Please try again.");
+            return;
+        }
+        
+        renderImageCard(data.hits);
+        refs.loadMoreBtn.classList.remove('is-hidden');
+        })
+        .catch(error => console.log(error))
+    
 }
+
 function onLoadMore(searchQuery) {
-    newsApiService.fetchImages(searchQuery).then(hits => renderImageCard(hits));
+    switchBtnVisability() 
+    newsApiService.fetchImages(searchQuery)
+        .then(data => {
+            renderImageCard(data.hits);
+            
+        }).then(switchBtnVisability)
+        .catch(error => console.log(error))
+    
+}
+
+function switchBtnVisability() {
+    refs.loadMoreBtn.classList.toggle('is-hidden');
 }

@@ -1,3 +1,5 @@
+// перевизнач per_page
+
 import { Notify } from "notiflix";
 import { refs } from "./index";
 const BASE_URL = 'https://pixabay.com/api/';
@@ -11,14 +13,19 @@ export default class NewsApiServise {
     
     fetchImages() {
         const QUERY_PARAMS = `&q=${this.searchQuery}&
-        image_type=photo&orientation=horizontal&safesearch=true&page=${this.page}&per_page=50`;
+        image_type=photo&orientation=horizontal&safesearch=true&page=${this.page}&per_page=98`;
         const resourceUrl = BASE_URL + API_KEY + QUERY_PARAMS;
     
-        return fetch(resourceUrl).then(responce => responce.json())
-            .then(data => {
-            this.incrementPage();
-            return data.hits;
-        })
+        return fetch(resourceUrl)
+            .then(response => {
+                return response.json()
+            }).then(data => {
+                this.incrementPage();
+                return data;
+            }).catch(() => {
+                Notify.info("We're sorry, but you've reached the end of search results.");
+                refs.loadMoreBtn.classList.add('is-hidden');
+            })
     }
 
     incrementPage() {
@@ -37,5 +44,3 @@ export default class NewsApiServise {
         this.searchQuery = newQuery;
     }
 }
-
-// if (data.hits.length === data.totalHits) //?
