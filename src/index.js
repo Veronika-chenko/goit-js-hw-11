@@ -5,6 +5,7 @@ import "simplelightbox/dist/simple-lightbox.min.css";
 import NewsApiService from './news-service';
 import renderImageCards from './render-interface';
 
+
 const newsApiService = new NewsApiService;
 
 export const refs = {
@@ -13,9 +14,11 @@ export const refs = {
     loadMoreBtn: document.querySelector('button.load-more'),
 }
 
+
 refs.form.addEventListener('submit', onSearch);
 refs.loadMoreBtn.addEventListener('click', onLoadMore);
 refs.galleryContainer.addEventListener('click', showModal);
+
 
 function onSearch(evt) {
     evt.preventDefault();
@@ -33,12 +36,14 @@ async function onFirstRequest() {
             return;
         } 
         renderImageCards(data.hits);
-        switchBtnVisability();
+        const totalHits = data.totalHits;
+        Notify.success(`Hooray! We found ${totalHits} images.`);
+        isTotalHits(data.hits, data.totalHits);
     } catch (error) {
         console.log(error);
     }
 }
-
+       
 async function onLoadMore(searchQuery) {
     switchBtnVisability();
     try {
@@ -54,6 +59,14 @@ function switchBtnVisability() {
     refs.loadMoreBtn.classList.toggle('is-hidden');
 }
 
+function isTotalHits(dataHits, totalHits) {
+    if (dataHits.length === Number(totalHits)) {
+        refs.loadMoreBtn.classList.add('is-hidden');
+        return;
+    }
+    switchBtnVisability();
+}
+
 function showModal(evt) {
     evt.preventDefault();
     if (!evt.target.nodeName === 'IMG') {
@@ -61,4 +74,4 @@ function showModal(evt) {
     }
     let gallery = new simpleLightbox('.gallery a');
 }
-// gallery.refresh()
+//gallery.refresh();
