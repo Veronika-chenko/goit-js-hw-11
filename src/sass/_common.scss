@@ -4,49 +4,69 @@
 main {
     padding-top: 65px;
 }
+
 input {
     height: 30px;
     width: 200px;   
 }
+
+img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+p {
+    margin: 0;
+}
+
+b {
+    display: block;
+    margin-bottom: 5px;
+}
+
 .search-form {
     height: 30px;
 }
+
 .header {
     position: fixed;
     width: 100%;
     padding: 10px 0;
-    background-color: skyblue;
+    background-color: #989898;
     text-align: center;
 }
 
-img {
-    display: block;
-    object-fit: cover;
-    
-    // height: 150px;
-    max-width: 100%;
-    height: auto;
-    // outline: auto;
-}
 .container {
     margin: 0 auto;
-    padding: 0 15px;   
+    padding: 0 15px;
 }
 
 .gallery {
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: -15px;
-    margin-left: -15px;
-}
-.photo-card {
-    // width: 280px;
-    // height: 280px;
+    @media screen and (min-width: 768px) {
+        display: flex;
+        flex-wrap: wrap;
+        margin-left: -15px;
+    }
 
+    margin-bottom: -15px;
+}
+
+.photo-card {
     margin-bottom: 15px;
-    width: calc(100% / 4 - 15px);
-    margin-left: 15px;
-    // flex-grow: 1;
+
+    @media screen and (min-width: 768px) {
+        width: calc(100% / 2 - 15px);
+        margin-left: 15px;
+    }
+    @media screen and (min-width: 1000px) {
+        width: calc(100% / 3 - 15px);
+        margin-left: 15px;
+    }
+    @media screen and (min-width: 1280px) {
+        width: calc(100% / 4 - 15px);
+    }
+    
     box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2),
             0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
 }
@@ -54,20 +74,12 @@ img {
 .info {
   //  border: 1px solid;
     display: flex;
-   justify-content: space-between;
+    justify-content: space-between;
     padding: 10px;
-  //  flex-grow: 1;
 }
 
 .info-item {
     text-align: center;
-}
-p {
-    margin: 0;
-}
-b {
-    display: block;
-    margin-bottom: 5px;
 }
 
 button.load-more {
@@ -76,6 +88,7 @@ button.load-more {
     width: 200px;
     height: 40px;
 }
+
 button.load-more.is-hidden {
     display: none;
 }

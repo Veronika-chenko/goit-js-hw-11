@@ -1,8 +1,10 @@
-// перевизнач per_page
-
+import axios from "axios";
 import { Notify } from "notiflix";
 import { refs } from "./index";
-const BASE_URL = 'https://pixabay.com/api/';
+
+const api = axios.create({
+    baseURL: 'https://pixabay.com/api/'
+})
 const API_KEY = '?key=29745254-668a4ef84f81b3be2971a230f';
 
 export default class NewsApiServise {
@@ -11,21 +13,19 @@ export default class NewsApiServise {
         this.page = 1;
     }
     
-    fetchImages() {
+    async fetchImages() {
         const QUERY_PARAMS = `&q=${this.searchQuery}&
-        image_type=photo&orientation=horizontal&safesearch=true&page=${this.page}&per_page=98`;
-        const resourceUrl = BASE_URL + API_KEY + QUERY_PARAMS;
-    
-        return fetch(resourceUrl)
-            .then(response => {
-                return response.json()
-            }).then(data => {
-                this.incrementPage();
-                return data;
-            }).catch(() => {
-                Notify.info("We're sorry, but you've reached the end of search results.");
-                refs.loadMoreBtn.classList.add('is-hidden');
-            })
+        image_type=photo&orientation=horizontal&safesearch=true`;
+        const paginationParams = `&page=${this.page}&per_page=40`;
+        
+        try {
+            const response = await api.get(API_KEY + QUERY_PARAMS + paginationParams);
+            this.incrementPage();
+            return response;
+        } catch (error) {
+            Notify.info("We're sorry, but you've reached the end of search results.");
+            refs.loadMoreBtn.classList.add('is-hidden');
+        }
     }
 
     incrementPage() {
@@ -37,7 +37,7 @@ export default class NewsApiServise {
     }
 
     get query() {
-        return this.searchQuery
+        return this.searchQuery;
     }
 
     set query(newQuery) {

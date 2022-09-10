@@ -1,6 +1,11 @@
 import { Notify } from "notiflix";
+import simpleLightbox from 'simplelightbox';
+import "simplelightbox/dist/simple-lightbox.min.css";
+
 import NewsApiService from './news-service';
-import renderImageCard from './render-interface';
+import renderImageCards from './render-interface';
+
+const newsApiService = new NewsApiService;
 
 export const refs = {
     form: document.querySelector('#search-form'),
@@ -8,42 +13,52 @@ export const refs = {
     loadMoreBtn: document.querySelector('button.load-more'),
 }
 
-refs.loadMoreBtn.classList.add('is-hidden');
-const newsApiService = new NewsApiService;
-
 refs.form.addEventListener('submit', onSearch);
-refs.loadMoreBtn.addEventListener('click', onLoadMore)
+refs.loadMoreBtn.addEventListener('click', onLoadMore);
+refs.galleryContainer.addEventListener('click', showModal);
 
 function onSearch(evt) {
     evt.preventDefault();
     
     newsApiService.query = evt.currentTarget.elements.searchQuery.value;
-    newsApiService.resetPage();
-    newsApiService.fetchImages()
-        .then(data => {
-        if (data.hits.length === 0) {
-            Notify.info("Sorry, there are no images matching your search query. Please try again.");
-            return;
-        }
-        
-        renderImageCard(data.hits);
-        refs.loadMoreBtn.classList.remove('is-hidden');
-        })
-        .catch(error => console.log(error))
-    
+    newsApiService.resetPage(); 
+    onFirstRequest();
 }
 
-function onLoadMore(searchQuery) {
-    switchBtnVisability() 
-    newsApiService.fetchImages(searchQuery)
-        .then(data => {
-            renderImageCard(data.hits);
-            
-        }).then(switchBtnVisability)
-        .catch(error => console.log(error))
-    
+async function onFirstRequest() {
+    try {
+        const { data } = await newsApiService.fetchImages();
+        if (data.hits.length === 0) {
+            Notify.failure("Sorry, there are no images matching your search query. Please try again.");
+            return;
+        } 
+        renderImageCards(data.hits);
+        switchBtnVisability();
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function onLoadMore(searchQuery) {
+    switchBtnVisability();
+    try {
+        const { data } = await newsApiService.fetchImages(searchQuery);
+        renderImageCards(data.hits);
+        switchBtnVisability();
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 function switchBtnVisability() {
     refs.loadMoreBtn.classList.toggle('is-hidden');
 }
+
+function showModal(evt) {
+    evt.preventDefault();
+    if (!evt.target.nodeName === 'IMG') {
+        return;
+    }
+    let gallery = new simpleLightbox('.gallery a');
+}
+// gallery.refresh()

@@ -1,6 +1,6 @@
 import { refs } from './index';
 
-export default function renderImageCard(images) {
+export default function renderImageCards(images) {
     const card = images.map(img => {
         return `
         <div class="photo-card">
