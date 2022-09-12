@@ -1,6 +1,4 @@
 import axios from "axios";
-import { Notify } from "notiflix";
-import { refs } from "./index";
 
 
 const api = axios.create({
@@ -22,11 +20,9 @@ export default class NewsApiServise {
         try {
             const response = await api.get(API_KEY + QUERY_PARAMS + paginationParams);
             this.incrementPage();
-
             return response;
         } catch (error) {
-            Notify.info("We're sorry, but you've reached the end of search results.");
-            refs.loadMoreBtn.classList.add('is-hidden');
+            console.log(error);
         }
     }
 

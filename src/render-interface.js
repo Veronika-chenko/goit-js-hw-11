@@ -24,5 +24,5 @@ export default function renderImageCards(images) {
         </div>
         </div>`
     }).join("");
-    refs.galleryContainer.innerHTML = card;
+    refs.galleryContainer.insertAdjacentHTML("beforeend", card);
 }
