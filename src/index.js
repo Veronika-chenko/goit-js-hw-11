@@ -28,8 +28,12 @@ function onSearch(evt) {
     newsApiService.resetPage();
 
     refs.galleryContainer.innerHTML = "";
+    
     if (isReceivedQuantity !== 0) {
         isReceivedQuantity = 0;
+    }
+    if (!refs.loadMoreBtn.classList.contains("is-hidden")) {
+        switchBtnVisibility();
     }
     onFirstRequest();
 }
@@ -45,7 +49,7 @@ async function onFirstRequest() {
 }
        
 async function onLoadMore(searchQuery) {
-    switchBtnVisability();
+    switchBtnVisibility();
     try {
         const { data } = await newsApiService.fetchImages(searchQuery);
         const dataHits = data.hits;
@@ -67,7 +71,7 @@ function onFirstRender(receivedHits, totalHits) {
     
     if (receivedHits.length >= 1 && receivedHits.length === Number(totalHits)) {
         renderImageCards(receivedHits);
-        
+
         Notify.info("We're sorry, but you've reached the end of search results.");
         refs.loadMoreBtn.classList.add('is-hidden');
         return;
@@ -78,7 +82,7 @@ function onFirstRender(receivedHits, totalHits) {
 
         renderImageCards(receivedHits);
         Notify.success(`Hooray! We found ${totalHits} images.`);
-        switchBtnVisability();
+        switchBtnVisibility();
 
         return isReceivedQuantity;
     }
@@ -94,12 +98,12 @@ function onLoadMoreRender(isReceivedQuantity, dataHits, totalHits) {
 
     if (dataHits.length >= 1) {
         renderImageCards(dataHits);
-        switchBtnVisability();
+        switchBtnVisibility();
         return;
     }
 }
 
-function switchBtnVisability() {
+function switchBtnVisibility() {
     refs.loadMoreBtn.classList.toggle('is-hidden');
 }
 
