@@ -7,6 +7,7 @@ import renderImageCards from './render-interface';
 
 
 const newsApiService = new NewsApiService;
+let isReceivedQuantity = 0;
 
 export const refs = {
     form: document.querySelector('#search-form'),
@@ -25,40 +26,19 @@ function onSearch(evt) {
     
     newsApiService.query = evt.currentTarget.elements.searchQuery.value;
     newsApiService.resetPage();
+
     refs.galleryContainer.innerHTML = "";
+    if (isReceivedQuantity !== 0) {
+        isReceivedQuantity = 0;
+    }
     onFirstRequest();
 }
-
-let alreadyWatched = 0;
 
 async function onFirstRequest() {
     try {
         const { data } = await newsApiService.fetchImages();
-        const totalHits = data.totalHits;
-        if (data.hits.length === 0) {
-            Notify.failure("Sorry, there are no images matching your search query. Please try again.");
-            return;
-        } 
-        // for amadeus mozart 7:
-        if (data.hits.length >= 1 && data.hits.length === Number(totalHits)) {
-            renderImageCards(data.hits);
-            console.log(`hits.length: ${data.hits.length}, totalHits: ${Number(totalHits)}`);//
-            Notify.info("We're sorry, but you've reached the end of search results.");
-            refs.loadMoreBtn.classList.add('is-hidden');
 
-            alreadyWatched = data.hits.length;
-            console.log("alreadyWatched:", alreadyWatched);
-            return alreadyWatched;
-        }
-        if (data.hits.length >= 1) {
-            renderImageCards(data.hits);
-            Notify.success(`Hooray! We found ${totalHits} images.`);
-            switchBtnVisability();
-
-            alreadyWatched = data.hits.length;
-            console.log("alreadyWatched:", alreadyWatched);
-            return alreadyWatched;
-        }
+        onFirstRender(data.hits, data.totalHits);
     } catch (error) {
         console.log(error);
     }
@@ -68,45 +48,60 @@ async function onLoadMore(searchQuery) {
     switchBtnVisability();
     try {
         const { data } = await newsApiService.fetchImages(searchQuery);
+        const dataHits = data.hits;
         const totalHits = data.totalHits;
-        alreadyWatched += data.hits.length;
-        if (alreadyWatched >= 1 && alreadyWatched === Number(totalHits)) {
-            renderImageCards(data.hits);
-            console.log(`onLoadMOre:: hits.length: ${data.hits.length}, totalHits: ${Number(totalHits)}`);//
-            Notify.info("We're sorry, but you've reached the end of search results.");
-            refs.loadMoreBtn.classList.add('is-hidden');
 
-            // alreadyWatched += data.hits.length;
-            console.log("alreadyWatched in loadMore1:", alreadyWatched);
-            return alreadyWatched;
-        }
-        if (alreadyWatched >= 1) {
-            renderImageCards(data.hits);
-            switchBtnVisability();
-
-            // alreadyWatched += data.hits.length;
-            console.log("alreadyWatched in loadMore2:", alreadyWatched);
-            return alreadyWatched;
-        }
-        
-        // switchBtnVisability();
+        isReceivedQuantity += dataHits.length;
+        onLoadMoreRender(isReceivedQuantity, dataHits, totalHits);
+        return isReceivedQuantity;
     } catch (error) {
         console.log(error);
+    }
+}
+
+function onFirstRender(receivedHits, totalHits) {
+    if (receivedHits.length === 0) {
+        Notify.failure("Sorry, there are no images matching your search query. Please try again.");
+        return;
+    } 
+    
+    if (receivedHits.length >= 1 && receivedHits.length === Number(totalHits)) {
+        renderImageCards(receivedHits);
+        
+        Notify.info("We're sorry, but you've reached the end of search results.");
+        refs.loadMoreBtn.classList.add('is-hidden');
+        return;
+    }
+
+    if (receivedHits.length >= 1) {
+        isReceivedQuantity = receivedHits.length;
+
+        renderImageCards(receivedHits);
+        Notify.success(`Hooray! We found ${totalHits} images.`);
+        switchBtnVisability();
+
+        return isReceivedQuantity;
+    }
+}
+
+function onLoadMoreRender(isReceivedQuantity, dataHits, totalHits) {
+    if (dataHits.length >= 1 && isReceivedQuantity === Number(totalHits)) {
+        renderImageCards(dataHits);
+        Notify.info("We're sorry, but you've reached the end of search results.");
+        refs.loadMoreBtn.classList.add('is-hidden');
+        return;
+    }
+
+    if (dataHits.length >= 1) {
+        renderImageCards(dataHits);
+        switchBtnVisability();
+        return;
     }
 }
 
 function switchBtnVisability() {
     refs.loadMoreBtn.classList.toggle('is-hidden');
 }
-
-// function isTotalHits(dataHits, totalHits) {
-//     if (dataHits.length === Number(totalHits)) {
-//         Notify.info("We're sorry, but you've reached the end of search results.");
-//         refs.loadMoreBtn.classList.add('is-hidden');
-//         return;
-//     }
-//     switchBtnVisability();
-// }
 
 function showModal(evt) {
     evt.preventDefault();
